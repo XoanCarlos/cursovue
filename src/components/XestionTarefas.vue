@@ -22,7 +22,7 @@
           <td style="text-align: center;">{{ index + 1 }}</td>
           <td style="text-align: center;">{{ t.titulo }}</td>
           <td style="text-align: center;">{{ t.dataLimite }}</td>
-          <td style="text-align: center;">{{ t.completada ? '✅' : '❌' }}</td>
+          <td style="text-align: center">{{ t.completada ? '✅' : '❌' }}</td>
           <!-- Botón para completar tarefa -->
           <td style="text-align: center;">
             <button 
@@ -39,17 +39,18 @@
 </template>
 
 <script setup>
-const props = defineProps({
-  usuario: { type: Object, default: null },
-  tarefas: { type: Array, default: () => [] }
-})
+import { ref } from 'vue'
 
-/// Evento para comunicar co compoñente pai o XestionUsuarios
-const emit = defineEmits(['tarefa-completada'])
+// Datos que se rellenarán desde json-server vía store o peticiones HTTP
+const usuario = ref(null)
+const tarefas = ref([])
 
-/// Método que indica que unha tarefa foi completada
+// Función para marcar una tarefa como completada
 function completarTarefa(index) {
-  emit('tarefa-completada', index)
+  if (tarefas.value[index]) {
+    tarefas.value[index].completada = true
+    // Aquí después se podría hacer PUT con axios para actualizar json-server
+  }
 }
 </script>
 

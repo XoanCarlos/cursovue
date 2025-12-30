@@ -35,5 +35,5 @@ body {
 
 .footer {bottom: 0; }
 
-main { margin-top: 30px; margin-bottom: 30px; }
+main { padding-top: 30px; padding-bottom: 30px; }
 </style>

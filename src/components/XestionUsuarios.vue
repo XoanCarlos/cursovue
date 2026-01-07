@@ -76,7 +76,7 @@
     <table v-if="usuarios.length > 0">
       <thead>
         <tr>
-          <th>#</th>
+          <th>ID</th>
           <th>DNI/CIF</th>
           <th>Nome</th>
           <th>Correo</th>
@@ -98,18 +98,30 @@
           <td style="text-align: center">
             <button @click="editarUsuario(index)" title="Editar">✏️</button>
             <button @click="eliminarUsuario(index)" title="Eliminar">🗑️</button>
+            <router-link
+              :to="{ name: 'xestionTarefas', params: { id: u.id } }"
+              class="btn"
+            >
+              📝 Tarefas
+            </router-link>
           </td>
         </tr>
       </tbody>
     </table>
     <p v-else>Non hai usuarios cargados.</p>
-
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
+import axios from "axios";
+import { useUsuarioStore } from "../store/usuarioStore.js";
 
+// Instanciamos a store de usuario
+const usuarioStore = useUsuarioStore();
+
+//URL dende .env
+const API_URL = import.meta.env.VITE_API_URL;
 
 const usuarios = ref([]); // Array que se conectará co json-server
 
@@ -125,44 +137,94 @@ const novoUsuario = reactive({
 const usuarioSeleccionado = ref(null);
 const tarefasUsuario = ref([]);
 
-// Funcións CRUD simplificadas (serán adaptadas para json-server)
-function gardarUsuario() {
-  // Aquí engadiremos POST/PUT con axios na UD4
-  usuarios.value.push({ ...novoUsuario });
-  Object.assign(novoUsuario, {
-    dni: "",
-    nome: "",
-    correo: "",
-    provincia: "",
-    activo: false,
-    tipoCuenta: "",
-  });
+onMounted(() => {
+  cargarUsuarios();
+});
+
+// Funcion GARGAR USUARIOS
+async function cargarUsuarios() {
+  try {
+    const res = await axios.get(`${API_URL}/usuarios`);
+    usuarios.value = res.data;
+  } catch (error) {
+    console.error("Erro ao cargar usuarios", error);
+  }
+}
+
+// CREAR OU MODIFICAR USUARIO
+
+async function gardarUsuario() {
+  try {
+    if (usuarioSeleccionado.value) {
+      await axios.put(`${API_URL}/usuarios/${usuarioSeleccionado.value.id}`, {
+        ...novoUsuario,
+      });
+    } else {
+      await axios.post(`${API_URL}/usuarios`, novoUsuario);
+    }
+
+    // Actualizamos no Store o estado do usuario seleccionado store ou o novo usuario
+    usuarioStore.seleccionarUsuario(usuarioSeleccionado.value || novoUsuario);
+
+    await cargarUsuarios();
+    limparFormulario();
+  } catch (error) {
+    console.error("Erro ao gardar usuario", error);
+  }
 }
 
 function eliminarUsuario(index) {
-  // Aquí engadiremos DELETE con axios
-  usuarios.value.splice(index, 1);
+  const usuario = usuarios.value[index];
+  axios
+    .delete(`${API_URL}/usuarios/${usuario.id}`)
+    .then(() => {
+      cargarUsuarios();
+      // Se o usuario eliminado era o seleccionado, limpamos o formulario e o Store
+      if (
+        usuarioSeleccionado.value &&
+        usuarioSeleccionado.value.id === usuario.id
+      ) {
+        limparFormulario();
+        usuarioStore.limparUsuario();
+      }
+    })
+    .catch((error) => {
+      console.error("Erro ao eliminar usuario", error);
+    });
 }
 
 function editarUsuario(index) {
   const usuario = usuarios.value[index];
-  Object.assign(novoUsuario, usuario);
-  usuarioSeleccionado.value = usuario;
+  Object.assign(novoUsuario, usuario); // Copiamos os datos do usuario ao formulario
+  usuarioSeleccionado.value = usuario; // Marcamos o usuario como seleccionado para editar
+  usuarioStore.seleccionarUsuario(usuario); // Actualizamos o Store co usuario seleccionado
+
   tarefasUsuario.value = []; // Sen tarefas de exemplo
+}
+
+// Limpar formulario
+function limparFormulario() {
+  novoUsuario.dni = "";
+  novoUsuario.nome = "";
+  novoUsuario.correo = "";
+  novoUsuario.provincia = "";
+  novoUsuario.activo = false;
+  novoUsuario.tipoCuenta = "";
+  usuarioSeleccionado.value = null;
+  tarefasUsuario.value = [];
 }
 </script>
 
 <style scoped>
 /* Mantemos todo o CSS existente */
 .xestion-usuarios {
-  width: 100;             /* ancho del contenedor */
+  width: 100; /* ancho del contenedor */
   margin: 5px auto 2rem auto; /* 60px desde arriba para separar del navbar, centrado horizontalmente */
   background: #fff;
   padding: 2rem;
   border-radius: 6px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
-
 
 form {
   display: flex;

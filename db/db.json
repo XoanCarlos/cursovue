@@ -1,0 +1,48 @@
+{
+  "usuarios": [
+    {
+      "dni": "55555555K",
+      "nome": "Margarita Flor Branca",
+      "correo": "branca@mail.com",
+      "provincia": "Lugo",
+      "activo": true,
+      "tipoCuenta": "particular",
+      "id": 1
+    },
+    {
+      "dni": "00000000T",
+      "nome": "Sandalio Botín Descalzo",
+      "correo": "botin@mail.com",
+      "provincia": "Pontevedra",
+      "activo": true,
+      "tipoCuenta": "empresa",
+      "id": 2
+    }
+  ],
+  "tarefas": [
+    {
+      "titulo": "Reunión departamento 5 pm",
+      "dataLimite": "2026-01-05",
+      "completada": true,
+      "usuarioId": 1,
+      "usuarioNome": "Margarita Flor Branca",
+      "id": 1
+    },
+    {
+      "titulo": "Preparación de exercicios para SMR",
+      "dataLimite": "2026-01-04",
+      "completada": false,
+      "usuarioId": 1,
+      "usuarioNome": "Margarita Flor Branca",
+      "id": 2
+    },
+    {
+      "titulo": "Reunión avaliación 2º DAM as 4 ",
+      "dataLimite": "2026-01-08",
+      "completada": false,
+      "usuarioId": 1,
+      "usuarioNome": "Margarita Flor Branca",
+      "id": 3
+    }
+  ]
+}
